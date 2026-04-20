@@ -1,0 +1,12 @@
+gradio>=4.0.0
+torch>=2.1.0
+torchvision
+Pillow>=9.0.0
+imageio
+imageio-ffmpeg
+av
+numpy
+easydict
+transformers
+accelerate
+safetensors

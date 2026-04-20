@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.venv/
+venv/
+.env
+.DS_Store
+outputs/
+task_queue/
