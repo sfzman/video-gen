@@ -4,16 +4,60 @@ import os
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent
-TASK_QUEUE_DIR = ROOT_DIR / "task_queue"
-DEFAULT_OUTPUT_DIR = ROOT_DIR / "outputs"
+
+
+def _parse_dotenv_value(raw_value: str) -> str:
+    value = raw_value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        quote = value[0]
+        value = value[1:-1]
+        if quote == '"':
+            value = (
+                value.replace(r"\\", "\\")
+                .replace(r"\n", "\n")
+                .replace(r"\r", "\r")
+                .replace(r"\t", "\t")
+                .replace(r"\"", '"')
+            )
+    return value
+
+
+def load_dotenv_file(dotenv_path: Path = ROOT_DIR / ".env") -> None:
+    if not dotenv_path.is_file():
+        return
+
+    for line in dotenv_path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if stripped.startswith("export "):
+            stripped = stripped[7:].lstrip()
+        if "=" not in stripped:
+            continue
+
+        key, raw_value = stripped.split("=", 1)
+        key = key.strip()
+        if not key or key in os.environ:
+            continue
+        os.environ[key] = _parse_dotenv_value(raw_value)
+
+
+def _env_path(name: str, default: Path | str) -> Path:
+    return Path(os.getenv(name, str(default))).expanduser()
+
+
+load_dotenv_file()
+
+TASK_QUEUE_DIR = _env_path("VIDEO_GEN_TASK_QUEUE_DIR", ROOT_DIR / "task_queue")
+DEFAULT_OUTPUT_DIR = _env_path("VIDEO_GEN_OUTPUT_DIR", ROOT_DIR / "outputs")
 
 MODEL_ANISORA = "anisora-v3.2"
 MODEL_LTX = "ltx-2.3"
 MODEL_CHOICES = [MODEL_ANISORA, MODEL_LTX]
 
-ANISORA_REPO_ROOT = Path("/Users/fangzhou/Workspace/Index-anisora/anisoraV3.2")
-LTX_PIPELINES_SRC = Path("/Users/fangzhou/Workspace/LTX-2/packages/ltx-pipelines/src")
-LTX_CORE_SRC = Path("/Users/fangzhou/Workspace/LTX-2/packages/ltx-core/src")
+ANISORA_REPO_ROOT = _env_path("ANISORA_REPO_ROOT", "/Users/fangzhou/Workspace/Index-anisora/anisoraV3.2")
+LTX_PIPELINES_SRC = _env_path("LTX_PIPELINES_SRC", "/Users/fangzhou/Workspace/LTX-2/packages/ltx-pipelines/src")
+LTX_CORE_SRC = _env_path("LTX_CORE_SRC", "/Users/fangzhou/Workspace/LTX-2/packages/ltx-core/src")
 
 DEFAULT_ANISORA_NEGATIVE_PROMPT = (
     "oversaturated, overexposed, static, blurry details, subtitles, style reference, artwork, painting, "

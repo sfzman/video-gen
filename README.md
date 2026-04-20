@@ -21,16 +21,20 @@ It preserves two core product capabilities from the old `wanvace` flow:
 
 ```bash
 cd /Users/fangzhou/Workspace/qufafa/video_gen
+cp .env.example .env
+# edit .env
 python main.py
 ```
 
 The app starts on `http://127.0.0.1:7860` by default.
 
+Startup configuration is loaded from the project root `.env` file automatically. If the same variable is already exported in your shell, the existing shell environment takes precedence.
+
 ## Required model paths
 
 ### Anisora
 
-Fill these in the UI or export them before launch:
+Fill these in the UI or put them in `.env` before launch:
 
 ```bash
 export ANISORA_CKPT_DIR=/path/to/Index-anisora-V3.2
